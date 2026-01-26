@@ -1,4 +1,4 @@
 package com.piggy.piggyfinance.model.responses;
 
-public class AuthResponse {
+public record AuthResponse(String token) {
 }
