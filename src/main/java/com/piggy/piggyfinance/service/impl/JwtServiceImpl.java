@@ -5,14 +5,16 @@ import com.piggy.piggyfinance.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
+@Service
 public class JwtServiceImpl implements JwtService {
 
-    private final String SECRET = "";
+    private final String SECRET = "SADWADWA#@@ASFASFAFASFASG#%$@TWAEGASGFAsfafasfasfawdfawdfawdf";
     private final long EXPIRATION_TIME = 1000 * 60 * 60 * 24;
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
 
