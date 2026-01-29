@@ -1,15 +1,20 @@
 package com.piggy.piggyfinance.controller;
 
-import com.piggy.piggyfinance.model.Transaction;
+import com.piggy.piggyfinance.model.filters.TransactionFilter;
 import com.piggy.piggyfinance.model.requests.CreateTransactionRequest;
+import com.piggy.piggyfinance.model.responses.TransactionResponse;
 import com.piggy.piggyfinance.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import static com.piggy.piggyfinance.mappers.TransactionMapper.TRANSACTION_MAPPER;
 
 @RestController
 @RequestMapping("/transactions")
@@ -18,17 +23,29 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody @Valid CreateTransactionRequest request, Authentication authentication) {
+    public TransactionResponse create(@RequestBody @Valid CreateTransactionRequest request, Authentication authentication) {
 
         String email = authentication.getName();
 
-        return ResponseEntity.status(201).body(transactionService.createTransaction(request, email));
+        return TRANSACTION_MAPPER.toResponse(
+                transactionService.createTransaction(request, email)
+        );
     }
 
     @GetMapping
-    public List<Transaction> list(Authentication authentication) {
+    @ResponseStatus(HttpStatus.OK)
+    public Page<TransactionResponse> list(TransactionFilter filter,
+                                  @PageableDefault(size = 20, sort = "timestamp", direction = Sort.Direction.DESC)
+                                  Pageable pageable,
+                                  Authentication authentication) {
+        var page = transactionService.listTransactions(
+                authentication.getName(),
+                filter,
+                pageable
+        );
 
-        return transactionService.listTransactions(authentication.getName());
+        return TRANSACTION_MAPPER.toResponsePage(page);
     }
 }
