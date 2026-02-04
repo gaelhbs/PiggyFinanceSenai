@@ -1,5 +1,6 @@
 package com.piggy.piggyfinance.model;
 
+import com.piggy.piggyfinance.enums.TransactionSourceEnum;
 import com.piggy.piggyfinance.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,6 +27,9 @@ public class Transaction {
 
     @Enumerated(EnumType.STRING)
     private TransactionType type;
+
+    @Enumerated(EnumType.STRING)
+    private TransactionSourceEnum source;
 
     private LocalDateTime timestamp;
 

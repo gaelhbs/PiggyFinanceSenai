@@ -16,8 +16,5 @@ public record CreateTransactionRequest(
         BigDecimal amount,
 
         @NotNull
-        TransactionType type,
-
-        @NotNull
-        LocalDateTime timestamp
+        TransactionType type
 ) {}

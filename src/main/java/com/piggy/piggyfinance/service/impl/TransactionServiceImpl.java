@@ -1,7 +1,9 @@
 package com.piggy.piggyfinance.service.impl;
 
+import com.piggy.piggyfinance.enums.TransactionSourceEnum;
 import com.piggy.piggyfinance.exceptions.BusinessException;
 import com.piggy.piggyfinance.exceptions.UserNotFoundException;
+import com.piggy.piggyfinance.factory.TransactionFactory;
 import com.piggy.piggyfinance.model.Transaction;
 import com.piggy.piggyfinance.model.User;
 import com.piggy.piggyfinance.model.filters.TransactionFilter;
@@ -26,20 +28,15 @@ public class TransactionServiceImpl implements TransactionService {
     private final UserRepository userRepository;
 
     @Override
-    public Transaction createTransaction(CreateTransactionRequest request, String email) {
+    public Transaction createTransaction(CreateTransactionRequest request, String email, TransactionSourceEnum source) {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
 
         validate(request);
 
-        Transaction transaction = Transaction.builder()
-                .description(request.description())
-                .amount(request.amount())
-                .type(request.type())
-                .timestamp(LocalDateTime.now())
-                .user(user)
-                .build();
+        Transaction transaction =
+                TransactionFactory.create(request, user, source);
 
         return transactionRepository.save(transaction);
     }
