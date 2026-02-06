@@ -25,7 +25,7 @@ public class AuthServiceImpl implements AuthService {
         User user = User.builder()
                 .name(request.name())
                 .email(request.email())
-                .password(request.password()) // senha em texto puro TEMPORARIAMENTE
+                .password(request.password())
                 .build();
 
         userRepository.save(user);
