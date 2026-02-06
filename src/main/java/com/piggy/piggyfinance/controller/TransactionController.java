@@ -12,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import static com.piggy.piggyfinance.mappers.TransactionMapper.TRANSACTION_MAPPER;
@@ -26,24 +25,20 @@ public class TransactionController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/app")
-    public TransactionResponse create(@RequestBody @Valid CreateTransactionRequest request, Authentication authentication) {
-
-        String email = authentication.getName();
+    public TransactionResponse create(@RequestBody @Valid CreateTransactionRequest request) {
 
         return TRANSACTION_MAPPER.toResponse(
-                transactionService.createTransaction(request, email, TransactionSourceEnum.APP)
+                transactionService.createTransaction(request,TransactionSourceEnum.APP)
         );
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/whatsapp")
-    public TransactionResponse createFromWhatsApp(@RequestBody @Valid CreateTransactionRequest request, Authentication authentication) {
-
-        String email = authentication.getName();
+    public TransactionResponse createFromWhatsApp(@RequestBody @Valid CreateTransactionRequest request) {
 
         //TODO: colocar o mappamento direto na service
         return TRANSACTION_MAPPER.toResponse(
-                transactionService.createTransaction(request, email, TransactionSourceEnum.WHATSAPP)
+                transactionService.createTransaction(request,TransactionSourceEnum.WHATSAPP)
         );
     }
 
@@ -51,10 +46,8 @@ public class TransactionController {
     @ResponseStatus(HttpStatus.OK)
     public Page<TransactionResponse> list(TransactionFilter filter,
                                           @PageableDefault(size = 20, sort = "timestamp", direction = Sort.Direction.DESC)
-                                          Pageable pageable,
-                                          Authentication authentication) {
+                                          Pageable pageable) {
         var page = transactionService.listTransactions(
-                authentication.getName(),
                 filter,
                 pageable
         );

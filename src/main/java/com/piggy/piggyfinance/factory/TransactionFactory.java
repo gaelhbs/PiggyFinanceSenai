@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 public class TransactionFactory {
 
     public static Transaction create(CreateTransactionRequest request,
-                                     User user,
                                      TransactionSourceEnum source) {
 
         return Transaction.builder()
@@ -24,7 +23,6 @@ public class TransactionFactory {
                 .type(request.type())
                 .source(source)
                 .timestamp(LocalDateTime.now())
-                .user(user)
                 .build();
     }
 

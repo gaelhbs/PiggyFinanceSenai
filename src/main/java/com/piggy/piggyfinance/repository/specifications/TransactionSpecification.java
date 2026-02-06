@@ -11,13 +11,11 @@ import java.util.List;
 
 public class TransactionSpecification {
 
-    public static Specification<Transaction> byFilter(TransactionFilter filter, String userEmail) {
+    public static Specification<Transaction> byFilter(TransactionFilter filter) {
         return (root, query, cb) -> {
 
             List<Predicate> predicates = new ArrayList<>();
 
-            // sempre filtrar pelo usuário
-            predicates.add(cb.equal(root.get("user").get("email"), userEmail));
 
             if (filter.getType() != null) {
                 predicates.add(cb.equal(root.get("type"), filter.getType()));

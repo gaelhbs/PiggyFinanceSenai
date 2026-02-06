@@ -11,7 +11,8 @@ import org.springframework.stereotype.Service;
 @Service
 public interface TransactionService {
 
-    Transaction createTransaction(CreateTransactionRequest request, String email, TransactionSourceEnum source);
+    Transaction createTransaction(CreateTransactionRequest request, TransactionSourceEnum source);
 
-    Page<Transaction> listTransactions(String email, TransactionFilter filter , Pageable pageable);
+    Page<Transaction> listTransactions(TransactionFilter filter , Pageable pageable);
+
 }
