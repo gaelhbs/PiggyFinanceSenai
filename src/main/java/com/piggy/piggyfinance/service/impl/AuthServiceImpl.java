@@ -6,9 +6,7 @@ import com.piggy.piggyfinance.model.requests.RegisterRequest;
 import com.piggy.piggyfinance.model.responses.AuthResponse;
 import com.piggy.piggyfinance.repository.UserRepository;
 import com.piggy.piggyfinance.service.AuthService;
-import com.piggy.piggyfinance.service.JwtService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,26 +14,23 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
-       if(userRepository.existsByEmail(request.email())){
-           throw new RuntimeException("Email already exists");
-       }
 
-       User user = User.builder()
-               .name(request.name())
-               .email(request.email())
-               .password(passwordEncoder.encode(request.password()))
-               .build();
+        if (userRepository.existsByEmail(request.email())) {
+            throw new RuntimeException("Email already exists");
+        }
 
-       userRepository.save(user);
+        User user = User.builder()
+                .name(request.name())
+                .email(request.email())
+                .password(request.password()) // senha em texto puro TEMPORARIAMENTE
+                .build();
 
-       String token = jwtService.generateToken(user);
+        userRepository.save(user);
 
-       return new AuthResponse(token);
+        return new AuthResponse("REGISTER_OK");
     }
 
     @Override
@@ -44,15 +39,10 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new RuntimeException("Invalid email or password"));
 
-        if(!passwordEncoder.matches(request.password(), user.getPassword())){
+        if (!user.getPassword().equals(request.password())) {
             throw new RuntimeException("Invalid email or password");
         }
 
-        String token = jwtService.generateToken(user);
-
-        return new AuthResponse(token);
+        return new AuthResponse("LOGIN_OK");
     }
-
-
-
 }
