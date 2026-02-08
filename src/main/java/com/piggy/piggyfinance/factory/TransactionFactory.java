@@ -15,13 +15,15 @@ import java.time.LocalDateTime;
 public class TransactionFactory {
 
     public static Transaction create(CreateTransactionRequest request,
-                                     TransactionSourceEnum source) {
+                                     TransactionSourceEnum source,
+                                     User user) {
 
         return Transaction.builder()
                 .description(request.description())
                 .amount(request.amount())
                 .type(request.type())
                 .source(source)
+                .user(user)
                 .timestamp(LocalDateTime.now())
                 .build();
     }

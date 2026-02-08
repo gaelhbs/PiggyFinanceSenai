@@ -2,7 +2,8 @@ package com.piggy.piggyfinance.controller;
 
 import com.piggy.piggyfinance.model.requests.LoginRequest;
 import com.piggy.piggyfinance.model.requests.RegisterRequest;
-import com.piggy.piggyfinance.model.responses.AuthResponse;
+import com.piggy.piggyfinance.model.responses.LoginResponse;
+import com.piggy.piggyfinance.model.responses.RegisterResponse;
 import com.piggy.piggyfinance.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +19,13 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.OK)
-    public AuthResponse register(@RequestBody @Valid RegisterRequest request) {
+    public RegisterResponse register(@RequestBody @Valid RegisterRequest request) {
         return authService.register(request);
     }
 
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
-    public AuthResponse login(@RequestBody @Valid LoginRequest request) {
+    public LoginResponse login(@RequestBody @Valid LoginRequest request) {
         return authService.login(request);
     }
 }
