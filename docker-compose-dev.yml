@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: piggy_postgres_dev
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: piggy_dev
+      POSTGRES_USER: piggy
+      POSTGRES_PASSWORD: piggy123
+    volumes:
+      - pgdata_dev:/var/lib/postgresql/data
+
+volumes:
+  pgdata_dev:
