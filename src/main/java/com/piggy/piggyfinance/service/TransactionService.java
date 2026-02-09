@@ -13,6 +13,6 @@ public interface TransactionService {
 
     Transaction createTransaction(CreateTransactionRequest request, TransactionSourceEnum source);
 
-    Page<Transaction> listTransactions(TransactionFilter filter , Pageable pageable);
+    Page<Transaction> listTransactions(TransactionFilter filter, Pageable pageable);
 
 }
