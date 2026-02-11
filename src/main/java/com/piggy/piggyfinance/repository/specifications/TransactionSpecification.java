@@ -8,14 +8,16 @@ import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class TransactionSpecification {
 
-    public static Specification<Transaction> byFilter(TransactionFilter filter) {
+    public static Specification<Transaction> byFilter(TransactionFilter filter, UUID userId) {
         return (root, query, cb) -> {
 
             List<Predicate> predicates = new ArrayList<>();
 
+            predicates.add(cb.equal(root.get("user").get("id"), userId));
 
             if (filter.getType() != null) {
                 predicates.add(cb.equal(root.get("type"), filter.getType()));
