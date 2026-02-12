@@ -1,5 +1,6 @@
 package com.piggy.piggyfinance.model.requests;
 
+import com.piggy.piggyfinance.enums.CategoryType;
 import com.piggy.piggyfinance.enums.TransactionType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,5 +16,7 @@ public record CreateTransactionRequest(
         BigDecimal amount,
 
         @NotNull
-        TransactionType type
+        TransactionType type,
+
+        CategoryType category
 ) {}

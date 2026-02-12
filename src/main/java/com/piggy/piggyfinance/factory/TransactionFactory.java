@@ -22,6 +22,7 @@ public class TransactionFactory {
                 .description(request.description())
                 .amount(request.amount())
                 .type(request.type())
+                .category(request.category())
                 .source(source)
                 .user(user)
                 .timestamp(LocalDateTime.now())

@@ -47,6 +47,8 @@ public class TransactionController {
         );
     }
 
+    //TODO: TRAZER USER ID
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Page<TransactionResponse> list(TransactionFilter filter,

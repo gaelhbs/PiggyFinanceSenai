@@ -90,5 +90,13 @@ public class TransactionServiceImpl implements TransactionService {
         if (request.amount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new BusinessException("Transaction amount must be greater than zero");
         }
+
+        if (request.type() == TransactionType.EXPENSE && request.category() == null) {
+            throw new BusinessException("Category is required for EXPENSE transactions");
+        }
+
+        if (request.type() == TransactionType.INCOME && request.category() != null) {
+            throw new BusinessException("Category is not allowed for INCOME transactions");
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.piggy.piggyfinance.model;
 
+import com.piggy.piggyfinance.enums.CategoryType;
 import com.piggy.piggyfinance.enums.TransactionSourceEnum;
 import com.piggy.piggyfinance.enums.TransactionType;
 import jakarta.persistence.*;
@@ -39,6 +40,10 @@ public class Transaction {
     @Column(name = "source", nullable = false)
     @Enumerated(EnumType.STRING)
     private TransactionSourceEnum source;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category")
+    private CategoryType category;
 
     @NotNull
     @Column(name = "timestamp", nullable = false)
