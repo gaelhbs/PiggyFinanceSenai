@@ -17,9 +17,9 @@ public class CorsConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of(
-                "https://piggyfinance.cloud",
+                "https://srv1334575.hstgr.cloud",
                 "http://72.61.135.97",
-                "http://localhost:5173"
+                "http://localhost:8080"
         ));
 
         configuration.setAllowedMethods(List.of(
