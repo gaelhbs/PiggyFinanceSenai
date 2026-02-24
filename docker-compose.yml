@@ -1,4 +1,7 @@
+version: '3.8'
+
 services:
+
   postgres:
     image: postgres:16
     container_name: piggy_postgres
@@ -9,25 +12,31 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     networks:
       - piggy-network
-
 
   backend:
     build: .
     container_name: piggy_backend
     restart: always
-    ports:
-      - "8080:8080"
+    depends_on:
+      - postgres
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/piggy
       SPRING_DATASOURCE_USERNAME: piggy
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+    networks:
+      - piggy-network
+
+  frontend:
+    build: ./frontend
+    container_name: piggy_frontend
+    restart: always
     depends_on:
-      - postgres
+      - backend
+    ports:
+      - "80:80"
     networks:
       - piggy-network
 
