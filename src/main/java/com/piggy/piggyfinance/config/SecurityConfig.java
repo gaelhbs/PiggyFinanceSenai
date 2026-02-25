@@ -31,6 +31,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/api/v1/transactions/**").authenticated()
                         .anyRequest().permitAll()
                 )
