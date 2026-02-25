@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults()) // pode remover depois
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/api/v1/transactions/**").authenticated()
                         .anyRequest().permitAll()
