@@ -29,7 +29,7 @@ public class JwtServiceImpl implements JwtService {
         Date expiry = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
-                .setSubject(user.getId().toString())                 // subject = email
+                .setSubject(user.getId().toString())
                 .claim("email", user.getEmail())
                 .setIssuedAt(now)
                 .setExpiration(expiry)
