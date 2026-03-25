@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -33,5 +34,18 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID>,
             @Param("end") LocalDateTime end
     );
 
-
+    @Query("""
+    select coalesce(sum(t.amount), 0)
+    from Transaction t
+    where t.user.id = :userId
+      and t.type = com.piggy.piggyfinance.enums.TransactionType.EXPENSE
+      and t.category = :category
+      and t.timestamp between :start and :end
+""")
+    BigDecimal sumByUserAndCategoryAndPeriod(
+            @Param("userId") UUID userId,
+            @Param("category") com.piggy.piggyfinance.enums.CategoryType category,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
 }

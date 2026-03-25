@@ -8,6 +8,7 @@ import com.piggy.piggyfinance.model.Transaction;
 import com.piggy.piggyfinance.model.User;
 import com.piggy.piggyfinance.model.filters.TransactionFilter;
 import com.piggy.piggyfinance.model.requests.CreateTransactionRequest;
+import com.piggy.piggyfinance.model.requests.UpdateTransactionRequest;
 import com.piggy.piggyfinance.model.responses.TransactionSummaryResponse;
 import com.piggy.piggyfinance.repository.TransactionRepository;
 import com.piggy.piggyfinance.repository.UserRepository;
@@ -45,6 +46,55 @@ public class TransactionServiceImpl implements TransactionService {
                 TransactionFactory.create(request, source, user);
 
         return transactionRepository.save(transaction);
+    }
+
+    @Override
+    public Transaction updateTransaction(UUID transactionId, UpdateTransactionRequest request) {
+        validateUpdate(request);
+
+        UUID userId = SecurityUtils.getAuthenticatedUserId();
+
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new BusinessException("Transaction not found"));
+
+        if (!transaction.getUser().getId().equals(userId)) {
+            throw new BusinessException("Transaction not found");
+        }
+
+        transaction.setDescription(request.description());
+        transaction.setAmount(request.amount());
+        transaction.setType(request.type());
+        transaction.setCategory(request.category());
+
+        return transactionRepository.save(transaction);
+    }
+
+    @Override
+    public void deleteTransaction(UUID transactionId) {
+        UUID userId = SecurityUtils.getAuthenticatedUserId();
+
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new BusinessException("Transaction not found"));
+
+        if (!transaction.getUser().getId().equals(userId)) {
+            throw new BusinessException("Transaction not found");
+        }
+
+        transactionRepository.delete(transaction);
+    }
+
+    @Override
+    public Transaction getTransaction(UUID transactionId) {
+        UUID userId = SecurityUtils.getAuthenticatedUserId();
+
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new BusinessException("Transaction not found"));
+
+        if (!transaction.getUser().getId().equals(userId)) {
+            throw new BusinessException("Transaction not found");
+        }
+
+        return transaction;
     }
 
     @Override
@@ -86,6 +136,21 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private void validate(CreateTransactionRequest request) {
+
+        if (request.amount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException("Transaction amount must be greater than zero");
+        }
+
+        if (request.type() == TransactionType.EXPENSE && request.category() == null) {
+            throw new BusinessException("Category is required for EXPENSE transactions");
+        }
+
+        if (request.type() == TransactionType.INCOME && request.category() != null) {
+            throw new BusinessException("Category is not allowed for INCOME transactions");
+        }
+    }
+
+    private void validateUpdate(UpdateTransactionRequest request) {
 
         if (request.amount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new BusinessException("Transaction amount must be greater than zero");

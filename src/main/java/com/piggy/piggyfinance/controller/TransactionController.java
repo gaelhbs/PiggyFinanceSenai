@@ -1,10 +1,14 @@
 package com.piggy.piggyfinance.controller;
 
 import com.piggy.piggyfinance.enums.TransactionSourceEnum;
+import com.piggy.piggyfinance.enums.TransactionType;
+import com.piggy.piggyfinance.model.Transaction;
 import com.piggy.piggyfinance.model.filters.TransactionFilter;
 import com.piggy.piggyfinance.model.requests.CreateTransactionRequest;
+import com.piggy.piggyfinance.model.requests.UpdateTransactionRequest;
 import com.piggy.piggyfinance.model.responses.TransactionResponse;
 import com.piggy.piggyfinance.model.responses.TransactionSummaryResponse;
+import com.piggy.piggyfinance.service.BudgetService;
 import com.piggy.piggyfinance.service.TransactionService;
 import com.piggy.piggyfinance.utils.SecurityUtils;
 import jakarta.validation.Valid;
@@ -18,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import static com.piggy.piggyfinance.mappers.TransactionMapper.TRANSACTION_MAPPER;
 
@@ -27,27 +32,41 @@ import static com.piggy.piggyfinance.mappers.TransactionMapper.TRANSACTION_MAPPE
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final BudgetService budgetService;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/app")
     public TransactionResponse create(@RequestBody @Valid CreateTransactionRequest request) {
-
-        return TRANSACTION_MAPPER.toResponse(
-                transactionService.createTransaction(request,TransactionSourceEnum.APP)
-        );
+        Transaction transaction = transactionService.createTransaction(request, TransactionSourceEnum.APP);
+        return toResponseWithBudgetWarning(transaction);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/whatsapp")
     public TransactionResponse createFromWhatsApp(@RequestBody @Valid CreateTransactionRequest request) {
-
-        //TODO: colocar o mappamento direto na service
-        return TRANSACTION_MAPPER.toResponse(
-                transactionService.createTransaction(request,TransactionSourceEnum.WHATSAPP)
-        );
+        Transaction transaction = transactionService.createTransaction(request, TransactionSourceEnum.WHATSAPP);
+        return toResponseWithBudgetWarning(transaction);
     }
 
-    //TODO: TRAZER USER ID
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public TransactionResponse getById(@PathVariable UUID id) {
+        return TRANSACTION_MAPPER.toResponse(transactionService.getTransaction(id));
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public TransactionResponse update(@PathVariable UUID id,
+                                      @RequestBody @Valid UpdateTransactionRequest request) {
+        Transaction transaction = transactionService.updateTransaction(id, request);
+        return toResponseWithBudgetWarning(transaction);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable UUID id) {
+        transactionService.deleteTransaction(id);
+    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -76,4 +95,24 @@ public class TransactionController {
         );
     }
 
+    private TransactionResponse toResponseWithBudgetWarning(Transaction transaction) {
+        TransactionResponse base = TRANSACTION_MAPPER.toResponse(transaction);
+
+        String warning = null;
+        if (transaction.getType() == TransactionType.EXPENSE) {
+            warning = budgetService.checkBudgetWarning(
+                    transaction.getUser().getId(),
+                    transaction.getCategory()
+            );
+        }
+
+        return new TransactionResponse(
+                base.id(),
+                base.description(),
+                base.amount(),
+                base.type(),
+                base.timestamp(),
+                warning
+        );
+    }
 }

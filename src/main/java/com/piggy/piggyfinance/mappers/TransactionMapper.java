@@ -3,6 +3,7 @@ package com.piggy.piggyfinance.mappers;
 import com.piggy.piggyfinance.model.Transaction;
 import com.piggy.piggyfinance.model.responses.TransactionResponse;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 
@@ -11,6 +12,7 @@ public interface TransactionMapper {
 
     TransactionMapper TRANSACTION_MAPPER = Mappers.getMapper(TransactionMapper.class);
 
+    @Mapping(target = "budgetWarning", ignore = true)
     TransactionResponse toResponse(Transaction transaction);
 
     default Page<TransactionResponse> toResponsePage(Page<Transaction> page) {

@@ -11,5 +11,6 @@ public record TransactionResponse(
         String description,
         BigDecimal amount,
         TransactionType type,
-        LocalDateTime timestamp
+        LocalDateTime timestamp,
+        String budgetWarning
 ) {}

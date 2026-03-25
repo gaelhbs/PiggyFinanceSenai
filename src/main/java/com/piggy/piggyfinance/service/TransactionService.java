@@ -4,6 +4,7 @@ import com.piggy.piggyfinance.enums.TransactionSourceEnum;
 import com.piggy.piggyfinance.model.Transaction;
 import com.piggy.piggyfinance.model.filters.TransactionFilter;
 import com.piggy.piggyfinance.model.requests.CreateTransactionRequest;
+import com.piggy.piggyfinance.model.requests.UpdateTransactionRequest;
 import com.piggy.piggyfinance.model.responses.TransactionSummaryResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,12 @@ import java.util.UUID;
 public interface TransactionService {
 
     Transaction createTransaction(CreateTransactionRequest request, TransactionSourceEnum source);
+
+    Transaction updateTransaction(UUID transactionId, UpdateTransactionRequest request);
+
+    void deleteTransaction(UUID transactionId);
+
+    Transaction getTransaction(UUID transactionId);
 
     Page<Transaction> listTransactions(TransactionFilter filter, Pageable pageable);
 
