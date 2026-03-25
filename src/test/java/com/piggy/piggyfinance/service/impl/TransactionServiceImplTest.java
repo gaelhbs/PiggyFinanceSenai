@@ -64,6 +64,7 @@ class TransactionServiceImplTest {
     void clearSecurityContext() {
         SecurityContextHolder.clearContext();
     }
+
     @Test
     void whenCreateTransaction_givenValidIncomeRequest_shouldSaveAndReturnTransaction() {
         User user = UserFactory.createUser();
@@ -88,7 +89,6 @@ class TransactionServiceImplTest {
 
     @Test
     void whenCreateTransaction_givenValidExpenseRequest_shouldSaveAndReturnTransaction() {
-
         User user = UserFactory.createUser();
         mockAuthentication(user.getId());
         CreateTransactionRequest request = CreateTransactionRequestFactory.createExpense();
@@ -111,6 +111,7 @@ class TransactionServiceImplTest {
             assertThat(result.getUser()).isEqualTo(user);
         }
     }
+
 
     @Test
     void whenCreateTransaction_givenZeroAmount_shouldThrowBusinessException() {
@@ -189,6 +190,27 @@ class TransactionServiceImplTest {
         }
     }
 
+    // --- NOVO TESTE: Listagem retornando uma página vazia (Sem registros) ---
+    @Test
+    void whenListTransactions_givenNoTransactionsFound_shouldReturnEmptyPage() {
+        User user = UserFactory.createUser();
+        mockAuthentication(user.getId());
+        TransactionFilter filter = new TransactionFilter();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Transaction> emptyPage = new PageImpl<>(Collections.emptyList());
+        Specification<Transaction> fixedSpec = (root, query, cb) -> cb.conjunction();
+
+        try (MockedStatic<TransactionSpecification> specMock = mockStatic(TransactionSpecification.class)) {
+            specMock.when(() -> TransactionSpecification.byFilter(filter, user.getId()))
+                    .thenReturn(fixedSpec);
+            when(transactionRepository.findAll(fixedSpec, pageable)).thenReturn(emptyPage);
+
+            Page<Transaction> result = transactionService.listTransactions(filter, pageable);
+
+            assertThat(result.getContent()).isEmpty();
+            assertThat(result.getTotalElements()).isZero();
+        }
+    }
 
     @Test
     void whenGetSummary_givenBothIncomeAndExpense_shouldCalculateCorrectBalance() {
@@ -264,10 +286,148 @@ class TransactionServiceImplTest {
         assertEquals(BigDecimal.ZERO, result.balance());
     }
 
+    @Test
+    void whenGetSummary_givenSameStartAndEndDate_shouldPassCorrectDateTimes() {
+        UUID userId = UserFactory.DEFAULT_ID;
+        LocalDate date = LocalDate.of(2024, 5, 15);
+        
+        LocalDateTime expectedStart = date.atStartOfDay();
+        LocalDateTime expectedEnd = date.atTime(LocalTime.MAX);
+        
+        when(transactionRepository.getSummary(userId, expectedStart, expectedEnd))
+                .thenReturn(Collections.emptyList());
+
+        TransactionSummaryResponse result = transactionService.getSummary(userId, date, date);
+
+        assertEquals(BigDecimal.ZERO, result.income());
+        assertEquals(BigDecimal.ZERO, result.expense());
+        assertEquals(BigDecimal.ZERO, result.balance());
+    }
 
     private void mockAuthentication(UUID userId) {
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+    @Test
+    void whenCreateTransaction_verifyUserRepositoryFindByIdIsCalled() {
+        User user = UserFactory.createUser();
+        mockAuthentication(user.getId());
+        CreateTransactionRequest request = CreateTransactionRequestFactory.createIncome();
+        Transaction expectedTransaction = TransactionFixture.create(user);
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        try (MockedStatic<TransactionFactory> factoryMock = mockStatic(TransactionFactory.class)) {
+            factoryMock.when(() -> TransactionFactory.create(request, TransactionSourceEnum.APP, user))
+                    .thenReturn(expectedTransaction);
+            when(transactionRepository.save(expectedTransaction)).thenReturn(expectedTransaction);
+
+            transactionService.createTransaction(request, TransactionSourceEnum.APP);
+
+            org.mockito.Mockito.verify(userRepository, org.mockito.Mockito.times(1)).findById(user.getId());
+        }
+    }
+
+    @Test
+    void whenCreateTransaction_verifyTransactionRepositorySaveIsCalled() {
+        User user = UserFactory.createUser();
+        mockAuthentication(user.getId());
+        CreateTransactionRequest request = CreateTransactionRequestFactory.createExpense();
+        Transaction expectedTransaction = TransactionFixture.createBuilder(user)
+                .type(TransactionType.EXPENSE)
+                .category(CategoryType.FOOD)
+                .build();
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        try (MockedStatic<TransactionFactory> factoryMock = mockStatic(TransactionFactory.class)) {
+            factoryMock.when(() -> TransactionFactory.create(request, TransactionSourceEnum.APP, user))
+                    .thenReturn(expectedTransaction);
+            when(transactionRepository.save(expectedTransaction)).thenReturn(expectedTransaction);
+
+            transactionService.createTransaction(request, TransactionSourceEnum.APP);
+
+            // Verifica se o save foi chamado exatamente 1 vez
+            org.mockito.Mockito.verify(transactionRepository, org.mockito.Mockito.times(1)).save(expectedTransaction);
+        }
+    }
+
+    // 3. Testa a listagem buscando uma página diferente (Página 1 em vez da 0)
+    @Test
+    void whenListTransactions_givenSecondPage_shouldReturnSuccessfully() {
+        User user = UserFactory.createUser();
+        mockAuthentication(user.getId());
+        TransactionFilter filter = new TransactionFilter();
+        Pageable pageable = PageRequest.of(1, 10); // Solicitando a página 1 (segunda página)
+        Page<Transaction> emptyPage = new PageImpl<>(Collections.emptyList());
+        Specification<Transaction> fixedSpec = (root, query, cb) -> cb.conjunction();
+
+        try (MockedStatic<TransactionSpecification> specMock = mockStatic(TransactionSpecification.class)) {
+            specMock.when(() -> TransactionSpecification.byFilter(filter, user.getId()))
+                    .thenReturn(fixedSpec);
+            when(transactionRepository.findAll(fixedSpec, pageable)).thenReturn(emptyPage);
+
+            Page<Transaction> result = transactionService.listTransactions(filter, pageable);
+
+            assertThat(result).isNotNull();
+        }
+    }
+
+    @Test
+    void whenListTransactions_verifyRepositoryFindAllIsCalled() {
+        User user = UserFactory.createUser();
+        mockAuthentication(user.getId());
+        TransactionFilter filter = new TransactionFilter();
+        Pageable pageable = PageRequest.of(0, 10);
+        Specification<Transaction> fixedSpec = (root, query, cb) -> cb.conjunction();
+        Page<Transaction> emptyPage = new PageImpl<>(Collections.emptyList());
+
+        try (MockedStatic<TransactionSpecification> specMock = mockStatic(TransactionSpecification.class)) {
+            specMock.when(() -> TransactionSpecification.byFilter(filter, user.getId()))
+                    .thenReturn(fixedSpec);
+            when(transactionRepository.findAll(fixedSpec, pageable)).thenReturn(emptyPage);
+
+            transactionService.listTransactions(filter, pageable);
+
+            org.mockito.Mockito.verify(transactionRepository, org.mockito.Mockito.times(1)).findAll(fixedSpec, pageable);
+        }
+    }
+
+    @Test
+    void whenGetSummary_verifyRepositoryGetSummaryIsCalled() {
+        UUID userId = UserFactory.DEFAULT_ID;
+        LocalDate date = LocalDate.of(2024, 1, 1);
+        LocalDateTime expectedStart = date.atStartOfDay();
+        LocalDateTime expectedEnd = date.atTime(LocalTime.MAX);
+        
+        when(transactionRepository.getSummary(userId, expectedStart, expectedEnd))
+                .thenReturn(Collections.emptyList());
+
+        transactionService.getSummary(userId, date, date);
+
+        org.mockito.Mockito.verify(transactionRepository, org.mockito.Mockito.times(1))
+                .getSummary(userId, expectedStart, expectedEnd);
+    }
+
+    @Test
+    void whenCreateTransaction_givenValidExpense_shouldNotReturnNull() {
+        User user = UserFactory.createUser();
+        mockAuthentication(user.getId());
+        CreateTransactionRequest request = CreateTransactionRequestFactory.createExpense();
+        Transaction expectedTransaction = TransactionFixture.createBuilder(user)
+                .type(TransactionType.EXPENSE)
+                .category(CategoryType.FOOD)
+                .build();
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        try (MockedStatic<TransactionFactory> factoryMock = mockStatic(TransactionFactory.class)) {
+            factoryMock.when(() -> TransactionFactory.create(request, TransactionSourceEnum.APP, user))
+                    .thenReturn(expectedTransaction);
+            when(transactionRepository.save(expectedTransaction)).thenReturn(expectedTransaction);
+
+            Transaction result = transactionService.createTransaction(request, TransactionSourceEnum.APP);
+
+            assertThat(result).isNotNull();
+            assertThat(result.getType()).isNotNull();
+        }
     }
 }
