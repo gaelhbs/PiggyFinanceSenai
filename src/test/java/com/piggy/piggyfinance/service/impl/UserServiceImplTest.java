@@ -31,32 +31,35 @@ class UserServiceImplTest {
     @InjectMocks
     private UserServiceImpl userService;
 
+    /**
+     * Testa se retorna os dados corretos do usuário quando o ID é válido.
+     * Criado por: Gabriel Braga em 23/03/2026
+     */
     @Test
     void whenGetCurrentUser_givenValidUserId_shouldReturnUserResponseWithCorrectData() {
-        // Arrange
         User user = UserFactory.createUser();
         when(userRepository.findById(UserFactory.DEFAULT_ID)).thenReturn(Optional.of(user));
 
-        // Act
         UserResponse response = userService.getCurrentUser(UserFactory.DEFAULT_ID);
 
-        // Assert
         assertThat(response.id()).isEqualTo(UserFactory.DEFAULT_ID);
         assertThat(response.name()).isEqualTo(UserFactory.DEFAULT_NAME);
         assertThat(response.email()).isEqualTo(UserFactory.DEFAULT_EMAIL);
         verify(userRepository).findById(UserFactory.DEFAULT_ID);
     }
 
+    /**
+     * Testa se lança exceção quando o ID do usuário não existe.
+     * Criado por: Gabriel Braga em 23/03/2026
+     */
     @Test
     void whenGetCurrentUser_givenNonExistentUserId_shouldThrowRuntimeExceptionWithMessage() {
-        // Arrange
         UUID nonExistentId = UserFactory.createUserBuilder()
                 .id(UUID.randomUUID())
                 .build()
                 .getId();
         when(userRepository.findById(nonExistentId)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThatThrownBy(() -> userService.getCurrentUser(nonExistentId))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("User not found");

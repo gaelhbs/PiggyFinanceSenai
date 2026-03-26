@@ -18,8 +18,10 @@ public class JwtAuthFilterTest {
         jwtAuthFilter = new JwtAuthFilter(jwtService);
     }
 
-    //Verifica se ignora rotas públicas de autenticação
-
+    /**
+     * Testa se ignora rotas públicas de autenticação.
+     * Criado por: thauanlima1 em 24/03/2026
+     */
     @Test
     void shouldNotFilter_authRoute_returnsTrue() {
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -30,8 +32,10 @@ public class JwtAuthFilterTest {
         assertThat(result).isTrue();
     }
 
-    //Verifica se aplica o filtro em rotas protegidas
-
+    /**
+     * Testa se aplica o filtro em rotas protegidas.
+     * Criado por: thauanlima1 em 24/03/2026
+     */
     @Test
     void shouldNotFilter_protectedRoute_returnsFalse() {
         MockHttpServletRequest request = new MockHttpServletRequest();

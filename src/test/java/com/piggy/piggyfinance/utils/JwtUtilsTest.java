@@ -32,8 +32,10 @@ public class JwtUtilsTest {
                 .compact();
     }
 
-    //Verifica se um token válido retorna o userId correto
-
+    /**
+     * Testa se um token válido retorna o userId correto.
+     * Criado por: ThauanLima1 em 24/03/2026
+     */
     @Test
     void success_validToken_returnsCorrectUserId() {
         UUID extractedUserId = jwtUtils.getUserId(VALID_TOKEN);
@@ -41,8 +43,10 @@ public class JwtUtilsTest {
         assertThat(extractedUserId).isEqualTo(EXPECTED_USER_ID);
     }
 
-    //Verifica se consegue acusar um token adulterado
-
+    /**
+     * Testa se consegue acusar um token adulterado.
+     * Criado por: ThauanLima1 em 24/03/2026
+     */
     @Test
     void failure_tamperedToken_throwsException() {
         String tamperedToken = VALID_TOKEN + "adulterado";
@@ -51,16 +55,20 @@ public class JwtUtilsTest {
                 .isInstanceOf(Exception.class);
     }
 
-    //Verifica se rejeita uma string que não é um token JWT
-
+    /**
+     * Testa se rejeita uma string que não é um token JWT.
+     * Criado por: ThauanLima1 em 24/03/2026
+     */
     @Test
     void failure_invalidToken_throwsException() {
         assertThatThrownBy(() -> jwtUtils.getUserId("this.is.not.a.jwt"))
                 .isInstanceOf(Exception.class);
     }
 
-    //Verifica se o JwtUtils lança uma exceção ao tentar ler um userId que não existe
-
+    /**
+     * Testa se lança exceção ao tentar ler um userId que não existe no token.
+     * Criado por: ThauanLima1 em 24/03/2026
+     */
     @Test
     void failure_tokenWithoutUserId_throwsException() {
         byte[] keyBytes = Base64.getDecoder().decode(SECRET);

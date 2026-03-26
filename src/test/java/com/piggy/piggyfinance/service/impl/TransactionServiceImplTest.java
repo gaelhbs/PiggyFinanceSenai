@@ -65,6 +65,10 @@ class TransactionServiceImplTest {
         SecurityContextHolder.clearContext();
     }
 
+    /**
+     * Testa se a transacao de receita e criada e retornada com sucesso quando a requisicao e valida.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenCreateTransaction_givenValidIncomeRequest_shouldSaveAndReturnTransaction() {
         User user = UserFactory.createUser();
@@ -87,6 +91,10 @@ class TransactionServiceImplTest {
         }
     }
 
+    /**
+     * Testa se a transacao de despesa e criada e retornada com sucesso quando a requisicao e valida.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenCreateTransaction_givenValidExpenseRequest_shouldSaveAndReturnTransaction() {
         User user = UserFactory.createUser();
@@ -112,7 +120,10 @@ class TransactionServiceImplTest {
         }
     }
 
-
+    /**
+     * Testa se lanca excecao ao criar transacao com valor zero.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenCreateTransaction_givenZeroAmount_shouldThrowBusinessException() {
         CreateTransactionRequest request = CreateTransactionRequestFactory.builder()
@@ -123,6 +134,10 @@ class TransactionServiceImplTest {
                 .isInstanceOf(BusinessException.class);
     }
 
+    /**
+     * Testa se lanca excecao ao criar transacao com valor negativo.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenCreateTransaction_givenNegativeAmount_shouldThrowBusinessException() {
         CreateTransactionRequest request = CreateTransactionRequestFactory.builder()
@@ -133,6 +148,10 @@ class TransactionServiceImplTest {
                 .isInstanceOf(BusinessException.class);
     }
 
+    /**
+     * Testa se lanca excecao ao criar despesa sem categoria.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenCreateTransaction_givenExpenseWithoutCategory_shouldThrowBusinessException() {
         CreateTransactionRequest request = CreateTransactionRequestFactory.builder()
@@ -144,6 +163,10 @@ class TransactionServiceImplTest {
                 .isInstanceOf(BusinessException.class);
     }
 
+    /**
+     * Testa se lanca excecao ao criar receita com categoria.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenCreateTransaction_givenIncomeWithCategory_shouldThrowBusinessException() {
         CreateTransactionRequest request = CreateTransactionRequestFactory.builder()
@@ -155,6 +178,10 @@ class TransactionServiceImplTest {
                 .isInstanceOf(BusinessException.class);
     }
 
+    /**
+     * Testa se lanca excecao quando o usuario nao e encontrado.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenCreateTransaction_givenUserNotFound_shouldThrowRuntimeException() {
         UUID userId = UserFactory.DEFAULT_ID;
@@ -167,6 +194,10 @@ class TransactionServiceImplTest {
                 .hasMessage("User not found");
     }
 
+    /**
+     * Testa se a listagem de transacoes retorna uma pagina com resultados quando o filtro e valido.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenListTransactions_givenValidFilter_shouldReturnPagedTransactions() {
         User user = UserFactory.createUser();
@@ -190,7 +221,10 @@ class TransactionServiceImplTest {
         }
     }
 
-    // --- NOVO TESTE: Listagem retornando uma página vazia (Sem registros) ---
+    /**
+     * Testa se a listagem retorna uma pagina vazia quando nao ha transacoes.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenListTransactions_givenNoTransactionsFound_shouldReturnEmptyPage() {
         User user = UserFactory.createUser();
@@ -212,6 +246,10 @@ class TransactionServiceImplTest {
         }
     }
 
+    /**
+     * Testa se o resumo calcula o saldo corretamente quando ha receitas e despesas.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenGetSummary_givenBothIncomeAndExpense_shouldCalculateCorrectBalance() {
         UUID userId = UserFactory.DEFAULT_ID;
@@ -234,6 +272,10 @@ class TransactionServiceImplTest {
         assertThat(result.balance()).isEqualByComparingTo(expectedBalance);
     }
 
+    /**
+     * Testa se o resumo retorna despesa zero e saldo positivo quando ha apenas receitas.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenGetSummary_givenOnlyIncome_shouldReturnZeroExpenseAndPositiveBalance() {
         UUID userId = UserFactory.DEFAULT_ID;
@@ -251,6 +293,10 @@ class TransactionServiceImplTest {
         assertThat(result.balance()).isEqualByComparingTo(TransactionSummaryItemFactory.DEFAULT_INCOME);
     }
 
+    /**
+     * Testa se o resumo retorna receita zero e saldo negativo quando ha apenas despesas.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenGetSummary_givenOnlyExpense_shouldReturnZeroIncomeAndNegativeBalance() {
         UUID userId = UserFactory.DEFAULT_ID;
@@ -269,6 +315,10 @@ class TransactionServiceImplTest {
         assertThat(result.balance()).isEqualByComparingTo(expectedBalance);
     }
 
+    /**
+     * Testa se o resumo retorna todos os valores zerados quando nao ha transacoes.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenGetSummary_givenEmptyResult_shouldReturnAllZeros() {
         UUID userId = UserFactory.DEFAULT_ID;
@@ -286,14 +336,18 @@ class TransactionServiceImplTest {
         assertEquals(BigDecimal.ZERO, result.balance());
     }
 
+    /**
+     * Testa se o resumo passa as datas corretas quando a data inicial e final sao iguais.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenGetSummary_givenSameStartAndEndDate_shouldPassCorrectDateTimes() {
         UUID userId = UserFactory.DEFAULT_ID;
         LocalDate date = LocalDate.of(2024, 5, 15);
-        
+
         LocalDateTime expectedStart = date.atStartOfDay();
         LocalDateTime expectedEnd = date.atTime(LocalTime.MAX);
-        
+
         when(transactionRepository.getSummary(userId, expectedStart, expectedEnd))
                 .thenReturn(Collections.emptyList());
 
@@ -309,6 +363,11 @@ class TransactionServiceImplTest {
                 new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
+
+    /**
+     * Testa se o repositorio de usuarios e consultado ao criar uma transacao.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenCreateTransaction_verifyUserRepositoryFindByIdIsCalled() {
         User user = UserFactory.createUser();
@@ -328,6 +387,10 @@ class TransactionServiceImplTest {
         }
     }
 
+    /**
+     * Testa se o repositorio de transacoes salva a transacao corretamente.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenCreateTransaction_verifyTransactionRepositorySaveIsCalled() {
         User user = UserFactory.createUser();
@@ -346,18 +409,20 @@ class TransactionServiceImplTest {
 
             transactionService.createTransaction(request, TransactionSourceEnum.APP);
 
-            // Verifica se o save foi chamado exatamente 1 vez
             org.mockito.Mockito.verify(transactionRepository, org.mockito.Mockito.times(1)).save(expectedTransaction);
         }
     }
 
-    // 3. Testa a listagem buscando uma página diferente (Página 1 em vez da 0)
+    /**
+     * Testa se a listagem retorna com sucesso ao buscar a segunda pagina.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenListTransactions_givenSecondPage_shouldReturnSuccessfully() {
         User user = UserFactory.createUser();
         mockAuthentication(user.getId());
         TransactionFilter filter = new TransactionFilter();
-        Pageable pageable = PageRequest.of(1, 10); // Solicitando a página 1 (segunda página)
+        Pageable pageable = PageRequest.of(1, 10);
         Page<Transaction> emptyPage = new PageImpl<>(Collections.emptyList());
         Specification<Transaction> fixedSpec = (root, query, cb) -> cb.conjunction();
 
@@ -372,6 +437,10 @@ class TransactionServiceImplTest {
         }
     }
 
+    /**
+     * Testa se o repositorio de transacoes e consultado ao listar transacoes.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenListTransactions_verifyRepositoryFindAllIsCalled() {
         User user = UserFactory.createUser();
@@ -392,13 +461,17 @@ class TransactionServiceImplTest {
         }
     }
 
+    /**
+     * Testa se o repositorio de transacoes e consultado ao obter o resumo.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenGetSummary_verifyRepositoryGetSummaryIsCalled() {
         UUID userId = UserFactory.DEFAULT_ID;
         LocalDate date = LocalDate.of(2024, 1, 1);
         LocalDateTime expectedStart = date.atStartOfDay();
         LocalDateTime expectedEnd = date.atTime(LocalTime.MAX);
-        
+
         when(transactionRepository.getSummary(userId, expectedStart, expectedEnd))
                 .thenReturn(Collections.emptyList());
 
@@ -408,6 +481,10 @@ class TransactionServiceImplTest {
                 .getSummary(userId, expectedStart, expectedEnd);
     }
 
+    /**
+     * Testa se a criacao de despesa valida nao retorna nulo.
+     * Criado por: Cassianozz em 23/03/2026
+     */
     @Test
     void whenCreateTransaction_givenValidExpense_shouldNotReturnNull() {
         User user = UserFactory.createUser();

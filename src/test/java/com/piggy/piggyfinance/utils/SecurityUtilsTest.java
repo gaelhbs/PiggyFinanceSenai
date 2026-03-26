@@ -20,8 +20,10 @@ public class SecurityUtilsTest {
         SecurityContextHolder.clearContext();
     }
 
-    //Verifica se retorna o userId correto quando o usuário está autenticado
-
+    /**
+     * Testa se retorna o userId correto quando o usuário está autenticado.
+     * Criado por: ThauanLima1 em 24/03/2026
+     */
     @Test
     void success_authenticatedUser_returnsCorrectUserId() {
         UUID expectedUserId = UUID.randomUUID();
@@ -38,8 +40,10 @@ public class SecurityUtilsTest {
         assertThat(result).isEqualTo(expectedUserId);
     }
 
-    //Se o usuario nao estiver logado, lance uma exceção
-
+    /**
+     * Testa se lança exceção quando o usuário não está logado.
+     * Criado por: ThauanLima1 em 24/03/2026
+     */
     @Test
     void failure_noAuthentication_throwsException() {
         SecurityContextHolder.clearContext();
@@ -49,8 +53,10 @@ public class SecurityUtilsTest {
                 .hasMessage("User not authenticated");
     }
 
-    //Verifica se lança exceção quando o principal não é um UUID
-
+    /**
+     * Testa se lança exceção quando o principal não é um UUID.
+     * Criado por: ThauanLima1 em 24/03/2026
+     */
     @Test
     void failure_invalidPrincipal_throwsException() {
         Authentication authentication = new UsernamePasswordAuthenticationToken(

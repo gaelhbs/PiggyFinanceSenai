@@ -56,6 +56,10 @@ class BudgetServiceImplTest {
         SecurityContextHolder.clearContext();
     }
 
+    /**
+     * Testa se o orçamento é criado e retornado com sucesso quando a requisição é válida.
+     * Criado por: Gabriel Braga em 25/03/2026
+     */
     @Test
     void whenCreate_givenValidRequest_shouldSaveAndReturnBudget() {
         User user = UserFactory.createUser();
@@ -76,6 +80,10 @@ class BudgetServiceImplTest {
         verify(budgetRepository).save(any(Budget.class));
     }
 
+    /**
+     * Testa se lança exceção ao criar orçamento com valor zero.
+     * Criado por: Gabriel Braga em 25/03/2026
+     */
     @Test
     void whenCreate_givenZeroAmount_shouldThrowBusinessException() {
         mockAuthentication(UserFactory.DEFAULT_ID);
@@ -88,6 +96,10 @@ class BudgetServiceImplTest {
                 .hasMessage("Budget amount must be greater than zero");
     }
 
+    /**
+     * Testa se lança exceção ao criar orçamento com valor negativo.
+     * Criado por: Gabriel Braga em 25/03/2026
+     */
     @Test
     void whenCreate_givenNegativeAmount_shouldThrowBusinessException() {
         mockAuthentication(UserFactory.DEFAULT_ID);
@@ -100,6 +112,10 @@ class BudgetServiceImplTest {
                 .hasMessage("Budget amount must be greater than zero");
     }
 
+    /**
+     * Testa se lança exceção ao criar orçamento com categoria duplicada.
+     * Criado por: Gabriel Braga em 25/03/2026
+     */
     @Test
     void whenCreate_givenDuplicateCategory_shouldThrowBusinessException() {
         User user = UserFactory.createUser();
@@ -113,6 +129,10 @@ class BudgetServiceImplTest {
                 .hasMessage("Budget already exists for category FOOD");
     }
 
+    /**
+     * Testa se o orçamento é atualizado e retornado com sucesso quando a requisição é válida.
+     * Criado por: Gabriel Braga em 25/03/2026
+     */
     @Test
     void whenUpdate_givenValidRequest_shouldUpdateAndReturnBudget() {
         User user = UserFactory.createUser();
@@ -129,6 +149,10 @@ class BudgetServiceImplTest {
         assertThat(result.category()).isEqualTo(CategoryType.FOOD);
     }
 
+    /**
+     * Testa se lança exceção ao atualizar orçamento de outro usuário.
+     * Criado por: Gabriel Braga em 25/03/2026
+     */
     @Test
     void whenUpdate_givenBudgetFromAnotherUser_shouldThrowBusinessException() {
         User owner = UserFactory.createUserBuilder().id(UUID.randomUUID()).build();
@@ -144,6 +168,10 @@ class BudgetServiceImplTest {
                 .hasMessage("Budget not found");
     }
 
+    /**
+     * Testa se o orçamento é deletado com sucesso.
+     * Criado por: Gabriel Braga em 25/03/2026
+     */
     @Test
     void whenDelete_givenValidBudget_shouldDeleteSuccessfully() {
         User user = UserFactory.createUser();
@@ -157,6 +185,10 @@ class BudgetServiceImplTest {
         verify(budgetRepository).delete(budget);
     }
 
+    /**
+     * Testa se lança exceção ao deletar orçamento inexistente.
+     * Criado por: Gabriel Braga em 25/03/2026
+     */
     @Test
     void whenDelete_givenBudgetNotFound_shouldThrowBusinessException() {
         mockAuthentication(UserFactory.DEFAULT_ID);
@@ -169,6 +201,10 @@ class BudgetServiceImplTest {
                 .hasMessage("Budget not found");
     }
 
+    /**
+     * Testa se o resumo retorna os valores corretos quando há orçamentos com gastos.
+     * Criado por: Gabriel Braga em 25/03/2026
+     */
     @Test
     void whenGetOverview_givenBudgetsWithSpending_shouldReturnCorrectOverview() {
         User user = UserFactory.createUser();
@@ -191,6 +227,10 @@ class BudgetServiceImplTest {
         assertThat(result.totalSpent()).isEqualByComparingTo(new BigDecimal("350.00"));
     }
 
+    /**
+     * Testa se o resumo retorna vazio quando não há orçamentos.
+     * Criado por: Gabriel Braga em 25/03/2026
+     */
     @Test
     void whenGetOverview_givenNoBudgets_shouldReturnEmptyOverview() {
         mockAuthentication(UserFactory.DEFAULT_ID);
@@ -204,6 +244,10 @@ class BudgetServiceImplTest {
         assertThat(result.totalSpent()).isEqualByComparingTo(BigDecimal.ZERO);
     }
 
+    /**
+     * Testa se o resumo sinaliza orçamento como excedido quando os gastos ultrapassam o limite.
+     * Criado por: Gabriel Braga em 25/03/2026
+     */
     @Test
     void whenGetOverview_givenExceededBudget_shouldFlagAsExceeded() {
         User user = UserFactory.createUser();
@@ -221,6 +265,10 @@ class BudgetServiceImplTest {
         assertThat(result.items().get(0).remaining()).isEqualByComparingTo(new BigDecimal("-100.00"));
     }
 
+    /**
+     * Testa se o resumo retorna o valor total restante quando não há gastos.
+     * Criado por: Gabriel Braga em 25/03/2026
+     */
     @Test
     void whenGetOverview_givenBudgetWithNoSpending_shouldReturnFullRemaining() {
         User user = UserFactory.createUser();
@@ -239,6 +287,10 @@ class BudgetServiceImplTest {
         assertThat(result.items().get(0).exceeded()).isFalse();
     }
 
+    /**
+     * Testa se retorna aviso quando o orçamento foi ultrapassado.
+     * Criado por: Gabriel Braga em 25/03/2026
+     */
     @Test
     void whenCheckBudgetWarning_givenExceededBudget_shouldReturnWarning() {
         User user = UserFactory.createUser();
@@ -258,6 +310,10 @@ class BudgetServiceImplTest {
         assertThat(warning).contains("500.00");
     }
 
+    /**
+     * Testa se retorna nulo quando os gastos estão dentro do orçamento.
+     * Criado por: Gabriel Braga em 25/03/2026
+     */
     @Test
     void whenCheckBudgetWarning_givenWithinBudget_shouldReturnNull() {
         User user = UserFactory.createUser();
@@ -274,6 +330,10 @@ class BudgetServiceImplTest {
         assertThat(warning).isNull();
     }
 
+    /**
+     * Testa se retorna nulo quando não existe orçamento para a categoria.
+     * Criado por: Gabriel Braga em 25/03/2026
+     */
     @Test
     void whenCheckBudgetWarning_givenNoBudget_shouldReturnNull() {
         when(budgetRepository.findByUserIdAndCategory(UserFactory.DEFAULT_ID, CategoryType.FOOD))
@@ -284,6 +344,10 @@ class BudgetServiceImplTest {
         assertThat(warning).isNull();
     }
 
+    /**
+     * Testa se retorna nulo quando a categoria é nula.
+     * Criado por: Gabriel Braga em 25/03/2026
+     */
     @Test
     void whenCheckBudgetWarning_givenNullCategory_shouldReturnNull() {
         String warning = budgetService.checkBudgetWarning(UserFactory.DEFAULT_ID, null);
